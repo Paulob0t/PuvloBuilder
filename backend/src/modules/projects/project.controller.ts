@@ -15,6 +15,11 @@ const createProjectSchema = z.object({
     .string()
     .min(3, 'El slug debe tener al menos 3 caracteres')
     .regex(/^[a-z0-9-]+$/, 'El slug solo puede contener letras minúsculas, números y guiones (-)'),
+  routePrefix: z
+    .string()
+    .min(1, 'El prefijo de ruta es obligatorio')
+    .regex(/^[a-z0-9-]+$/, 'El prefijo solo puede contener letras minúsculas, números y guiones (-)')
+    .default('sitio'),
   title: z.string().min(2, 'El título es obligatorio'),
   description: z.string().optional(),
   published: z.boolean().default(false),
@@ -54,7 +59,7 @@ export async function createProjectHandler(request: FastifyRequest, reply: Fasti
     });
   }
 
-  const { slug, title, description, published, authEnabled, blocks, settings } = parseResult.data;
+  const { slug, routePrefix, title, description, published, authEnabled, blocks, settings } = parseResult.data;
 
   const existingProject = await prisma.project.findUnique({
     where: { slug },
@@ -71,6 +76,7 @@ export async function createProjectHandler(request: FastifyRequest, reply: Fasti
   const project = await prisma.project.create({
     data: {
       slug,
+      routePrefix: routePrefix || 'sitio',
       title,
       description,
       published,
@@ -193,6 +199,7 @@ export async function getPublicProjectBySlugHandler(request: FastifyRequest, rep
     select: {
       id: true,
       slug: true,
+      routePrefix: true,
       title: true,
       description: true,
       published: true,
