@@ -15,11 +15,11 @@ export const App: React.FC = () => {
           <Route path="/login" element={<SuperAdminLogin />} />
           <Route path="/admin" element={<SuperAdminDashboard />} />
 
-          {/* Tenant Sub-project Routes */}
-          <Route path="/sitio/:slug/login" element={<ProjectUserLogin />} />
-          <Route path="/sitio/:slug" element={<ProjectSiteView />} />
+          {/* Dynamic Prefix & Slug Tenant Routes (e.g. /app/:slug, /tienda/:slug, /sitio/:slug) */}
+          <Route path="/:prefix/:slug/login" element={<ProjectUserLogin />} />
+          <Route path="/:prefix/:slug" element={<ProjectSiteView />} />
 
-          {/* Root redirect */}
+          {/* Fallback & Root redirect */}
           <Route path="/" element={<Navigate to="/admin" replace />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
