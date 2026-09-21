@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  ShieldCheck,
   Plus,
   Layers,
   Users,
   ExternalLink,
   LogOut,
   Sparkles,
-  Globe,
   Trash2,
   Lock,
+  Command,
+  ChevronRight,
+  X,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +39,7 @@ export const SuperAdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // New project form state
+  // Form state
   const [newTitle, setNewTitle] = useState('');
   const [newSlug, setNewSlug] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -51,7 +52,6 @@ export const SuperAdminDashboard: React.FC = () => {
       const res = await api.get('/projects');
       setProjects(res.data.projects);
     } catch {
-      // If unauthorized, redirect to login
       logoutSuperAdmin();
       navigate('/login');
     } finally {
@@ -69,7 +69,6 @@ export const SuperAdminDashboard: React.FC = () => {
 
   const handleTitleChange = (val: string) => {
     setNewTitle(val);
-    // Auto-generate slug from title
     const generatedSlug = val
       .toLowerCase()
       .trim()
@@ -96,10 +95,21 @@ export const SuperAdminDashboard: React.FC = () => {
             type: 'HERO',
             content: {
               title: newTitle,
-              subtitle: newDescription || 'Bienvenido a este nuevo mini-sitio modular.',
-              ctaText: 'Comenzar ahora',
+              subtitle: newDescription || 'Diseñado con la elegancia y fluidez de la nueva generación.',
+              ctaText: 'Descubrir más',
             },
           },
+          {
+            id: 'b-feat-' + Date.now(),
+            type: 'FEATURES',
+            content: {
+              items: [
+                { title: 'Rendimiento Extremo', desc: 'Optimizado con Fastify y Vite para respuestas en microsegundos.' },
+                { title: 'Modularidad Pura', desc: 'Configuración de bloques dinámicos JSON en MariaDB.' },
+                { title: 'Seguridad Multi-Tenant', desc: 'Sesiones y autenticación aisladas por proyecto.' }
+              ]
+            }
+          }
         ],
       });
 
@@ -126,35 +136,38 @@ export const SuperAdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-black text-[#f5f5f7] flex flex-col selection:bg-blue-500/30">
+      {/* Ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[300px] bg-gradient-to-b from-blue-600/10 via-transparent to-transparent blur-[120px] pointer-events-none" />
+
       {/* Top Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-black/60 backdrop-blur-2xl">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-md shadow-indigo-600/30">
-              <ShieldCheck className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-zinc-700 to-zinc-900 border border-white/15 flex items-center justify-center shadow-lg">
+              <Command className="w-4 h-4 text-white" />
             </div>
-            <div>
-              <span className="font-bold text-lg text-white">
-                Puvlo<span className="text-indigo-400">Builder</span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-[15px] tracking-tight text-white">
+                PuvloBuilder
               </span>
-              <span className="ml-2 text-xs bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-2 py-0.5 rounded-full font-medium">
-                SuperAdmin
+              <span className="text-[11px] bg-white/[0.08] text-[#86868b] border border-white/10 px-2 py-0.5 rounded-full font-medium">
+                Admin
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-sm font-medium text-slate-200">{superAdmin?.name}</div>
-              <div className="text-xs text-slate-500">{superAdmin?.email}</div>
+              <div className="text-[13px] font-medium text-white">{superAdmin?.name}</div>
+              <div className="text-[11px] text-[#86868b]">{superAdmin?.email}</div>
             </div>
             <button
               onClick={() => {
                 logoutSuperAdmin();
                 navigate('/login');
               }}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-[#86868b] hover:text-white transition-all duration-200 cursor-pointer border border-white/10"
               title="Cerrar sesión"
             >
               <LogOut className="w-4 h-4" />
@@ -164,44 +177,49 @@ export const SuperAdminDashboard: React.FC = () => {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Welcome & Actions Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-10 z-10">
+        {/* Welcome Section */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Mini Proyectos & Sub-Sitios</h2>
-            <p className="text-sm text-slate-400 mt-1">
-              Gestiona sitios multi-tenant, layouts dinámicos y accesos de sub-administradores.
+            <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">
+              Control Maestro
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white mt-1">
+              Proyectos & Sitios
+            </h1>
+            <p className="text-[14px] text-[#86868b] mt-1.5 max-w-xl">
+              Administra tus páginas modulares, esquemas de bloques dinámicos y usuarios independientes por tenant.
             </p>
           </div>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/25 transition-all cursor-pointer text-sm"
+            className="apple-button-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm cursor-pointer shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            <span>Nuevo Mini Proyecto</span>
+            <span>Nuevo Proyecto</span>
           </button>
         </div>
 
-        {/* Projects Grid */}
+        {/* Projects Bento Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex justify-center items-center py-28">
+            <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
           </div>
         ) : projects.length === 0 ? (
-          <div className="border border-dashed border-slate-800 rounded-3xl p-12 text-center bg-slate-900/20">
-            <div className="w-12 h-12 rounded-2xl bg-slate-800/80 text-slate-400 flex items-center justify-center mx-auto mb-4">
-              <Layers className="w-6 h-6" />
+          <div className="apple-card rounded-3xl p-14 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 text-zinc-400 flex items-center justify-center mx-auto mb-4">
+              <Layers className="w-7 h-7" />
             </div>
-            <h3 className="text-base font-semibold text-slate-200">No hay proyectos creados aún</h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1 mb-6">
-              Comienza creando tu primer mini-sitio con su propio slug y sistema de bloques dinámicos.
+            <h3 className="text-lg font-semibold text-white">Ningún proyecto creado</h3>
+            <p className="text-sm text-[#86868b] max-w-sm mx-auto mt-1 mb-6">
+              Crea tu primer sub-sitio con su propio slug y renderizado dinámico de bloques.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+              className="apple-button-primary px-5 py-2.5 rounded-full text-xs font-medium cursor-pointer"
             >
-              Crear mi primer proyecto
+              Comenzar ahora
             </button>
           </div>
         ) : (
@@ -209,78 +227,81 @@ export const SuperAdminDashboard: React.FC = () => {
             {projects.map((proj) => (
               <div
                 key={proj.id}
-                className="bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between group"
+                className="apple-card rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="p-2.5 rounded-xl bg-indigo-950/60 border border-indigo-800/40 text-indigo-400">
-                      <Layers className="w-5 h-5" />
+                  {/* Card Top */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white">
+                      <Layers className="w-5 h-5 text-zinc-300" />
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    <div className="flex items-center gap-1.5">
                       <span
-                        className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+                        className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${
                           proj.published
-                            ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60'
-                            : 'bg-amber-950/80 text-amber-300 border border-amber-800/60'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                         }`}
                       >
                         {proj.published ? 'Publicado' : 'Borrador'}
                       </span>
+
                       <button
                         onClick={() => handleDeleteProject(proj.id, proj.title)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition-all cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 cursor-pointer"
                         title="Eliminar proyecto"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  <h3 className="font-semibold text-base text-white group-hover:text-indigo-300 transition-colors">
+                  <h3 className="font-semibold text-lg text-white group-hover:text-blue-400 transition-colors duration-200">
                     {proj.title}
                   </h3>
-                  <p className="text-xs text-slate-400 line-clamp-2 mt-1 mb-4">
-                    {proj.description || 'Sin descripción'}
+                  <p className="text-[13px] text-[#86868b] line-clamp-2 mt-1 mb-4 font-normal">
+                    {proj.description || 'Sin descripción asignada.'}
                   </p>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-400 font-mono flex items-center justify-between mb-4">
-                    <span>/sitio/{proj.slug}</span>
-                    <Globe className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="bg-black/50 border border-white/[0.06] rounded-xl px-3 py-1.5 text-xs text-zinc-400 font-mono flex items-center justify-between mb-5">
+                    <span className="text-zinc-300">/sitio/{proj.slug}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
                   </div>
 
-                  {/* Metrics */}
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 py-3 border-t border-slate-800/60">
+                  {/* Metrics Badge Row */}
+                  <div className="grid grid-cols-2 gap-2 text-[12px] text-[#86868b] py-3 border-t border-white/[0.06]">
                     <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{proj._count?.users || 0} Sub-admins/users</span>
+                      <Users className="w-3.5 h-3.5 text-zinc-500" />
+                      <span>{proj._count?.users || 0} Sub-admins</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-slate-500" />
+                      <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
                       <span>{Array.isArray(proj.blocks) ? proj.blocks.length : 0} Bloques</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="pt-4 border-t border-slate-800/60 flex items-center gap-2">
+                {/* Bottom Action Buttons */}
+                <div className="pt-4 border-t border-white/[0.06] flex items-center gap-2">
                   <Link
                     to={`/sitio/${proj.slug}`}
                     target="_blank"
-                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 px-3 rounded-xl text-center font-medium flex items-center justify-center gap-1.5 transition-colors"
+                    className="flex-1 bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs py-2 px-3 rounded-full text-center font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border border-white/10"
                   >
                     <span>Ver Sitio</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3 h-3 text-zinc-400" />
                   </Link>
 
                   {proj.authEnabled && (
                     <Link
                       to={`/sitio/${proj.slug}/login`}
                       target="_blank"
-                      className="bg-emerald-950/60 border border-emerald-800/50 hover:bg-emerald-900/60 text-emerald-300 text-xs py-2 px-3 rounded-xl font-medium flex items-center gap-1 transition-colors"
+                      className="bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 text-xs py-2 px-3.5 rounded-full font-medium flex items-center gap-1.5 transition-all duration-200"
                       title="Login de Sub-Admin del sitio"
                     >
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Tenant Login</span>
+                      <Lock className="w-3 h-3" />
+                      <span>Tenant</span>
                     </Link>
                   )}
                 </div>
@@ -290,24 +311,32 @@ export const SuperAdminDashboard: React.FC = () => {
         )}
       </main>
 
-      {/* Modal Crear Proyecto */}
+      {/* Apple Sheet Modal for Creating Project */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-1">Crear Nuevo Mini Proyecto</h3>
-            <p className="text-xs text-slate-400 mb-6">
-              El slug definirá la URL independiente de la sub-página.
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="apple-glass rounded-3xl max-w-md w-full p-7 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-semibold text-white">Nuevo Proyecto</h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-[#86868b] mb-5">
+              Crea un sub-sitio modular con su propio identificador de ruta.
             </p>
 
             {formError && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-950/50 border border-rose-800/60 text-rose-300 text-xs">
+              <div className="mb-4 p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
                 {formError}
               </div>
             )}
 
             <form onSubmit={handleCreateProject} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-medium text-[#86868b] uppercase tracking-wider mb-1.5 pl-1">
                   Título del Proyecto
                 </label>
                 <input
@@ -315,17 +344,17 @@ export const SuperAdminDashboard: React.FC = () => {
                   required
                   value={newTitle}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="Ej. Tienda de Zapatos"
-                  className="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Ej. Estudio Creativo"
+                  className="apple-input w-full rounded-2xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Slug (URL identificador)
+                <label className="block text-[11px] font-medium text-[#86868b] uppercase tracking-wider mb-1.5 pl-1">
+                  Slug (Ruta Web)
                 </label>
                 <div className="flex items-center">
-                  <span className="bg-slate-800 border border-r-0 border-slate-700 text-slate-400 px-3 py-2.5 rounded-l-xl text-xs">
+                  <span className="bg-white/[0.05] border border-r-0 border-white/10 text-zinc-500 px-3 py-2.5 rounded-l-2xl text-xs font-mono">
                     /sitio/
                   </span>
                   <input
@@ -333,50 +362,50 @@ export const SuperAdminDashboard: React.FC = () => {
                     required
                     value={newSlug}
                     onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="tienda-zapatos"
-                    className="w-full bg-slate-950/70 border border-slate-800 rounded-r-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
+                    placeholder="estudio-creativo"
+                    className="apple-input w-full rounded-r-2xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-600 font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Descripción (Opcional)
+                <label className="block text-[11px] font-medium text-[#86868b] uppercase tracking-wider mb-1.5 pl-1">
+                  Descripción
                 </label>
                 <textarea
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Breve descripción del propósito de este mini sitio..."
+                  placeholder="Descripción de este mini sitio..."
                   rows={2}
-                  className="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="apple-input w-full rounded-2xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-600 resize-none"
                 />
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3 pt-1">
                 <input
                   type="checkbox"
                   id="authEnabled"
                   checked={newAuthEnabled}
                   onChange={(e) => setNewAuthEnabled(e.target.checked)}
-                  className="rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+                  className="rounded-md bg-zinc-900 border-white/20 text-blue-500 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
-                <label htmlFor="authEnabled" className="text-xs text-slate-300 cursor-pointer">
-                  Habilitar sistema de login propio para este sub-proyecto
+                <label htmlFor="authEnabled" className="text-xs text-[#86868b] cursor-pointer">
+                  Habilitar login y sub-administradores propios
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 cursor-pointer"
+                  className="px-4 py-2 rounded-full text-xs font-medium text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-medium shadow-lg shadow-indigo-600/25 transition-all cursor-pointer disabled:opacity-50"
+                  className="apple-button-primary px-5 py-2 rounded-full text-xs font-medium cursor-pointer disabled:opacity-50"
                 >
                   {creating ? 'Creando...' : 'Crear Proyecto'}
                 </button>

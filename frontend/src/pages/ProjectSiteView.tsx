@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Layers, ArrowRight, CheckCircle2, Lock, UserCheck } from 'lucide-react';
+import { Layers, ArrowRight, Lock, UserCheck, Sparkles } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
@@ -47,49 +47,49 @@ export const ProjectSiteView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-rose-950/50 border border-rose-800 text-rose-400 flex items-center justify-center mb-4">
-          <Layers className="w-8 h-8" />
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-[#f5f5f7]">
+        <div className="w-14 h-14 rounded-3xl bg-white/[0.05] border border-white/10 text-zinc-400 flex items-center justify-center mb-4">
+          <Layers className="w-6 h-6" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Página no encontrada</h1>
-        <p className="text-slate-400 text-sm max-w-sm mb-6">{error}</p>
-        <Link to="/login" className="text-indigo-400 hover:text-indigo-300 text-sm underline">
-          Ir al Login Principal
+        <h1 className="text-2xl font-semibold text-white mb-2">Página no encontrada</h1>
+        <p className="text-[#86868b] text-sm max-w-sm mb-6">{error}</p>
+        <Link to="/login" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+          Ir al Inicio
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Site Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-20">
+    <div className="min-h-screen bg-black text-[#f5f5f7] flex flex-col selection:bg-blue-500/30">
+      {/* Site Frosted Navbar */}
+      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-black/60 backdrop-blur-2xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white text-sm">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-b from-zinc-700 to-zinc-900 border border-white/15 flex items-center justify-center font-semibold text-white text-xs">
               {project.title.charAt(0)}
             </div>
-            <span className="font-bold text-lg text-white">{project.title}</span>
+            <span className="font-semibold text-[15px] tracking-tight text-white">{project.title}</span>
           </div>
 
           <div className="flex items-center gap-3">
             {project.authEnabled && (
               <>
                 {projectUser && projectUser.projectSlug === slug ? (
-                  <div className="flex items-center gap-3 bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-1.5 text-xs">
-                    <UserCheck className="w-4 h-4 text-emerald-400" />
-                    <span>{projectUser.name} ({projectUser.role})</span>
+                  <div className="flex items-center gap-2.5 bg-white/[0.06] border border-white/10 rounded-full px-3.5 py-1.5 text-xs">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-zinc-300 font-medium">{projectUser.name}</span>
                     <button
                       onClick={logoutProjectUser}
-                      className="text-slate-400 hover:text-rose-400 ml-2 cursor-pointer"
+                      className="text-[#86868b] hover:text-white ml-1.5 cursor-pointer text-[11px]"
                     >
                       Salir
                     </button>
@@ -97,10 +97,10 @@ export const ProjectSiteView: React.FC = () => {
                 ) : (
                   <Link
                     to={`/sitio/${slug}/login`}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                    className="apple-button-primary text-xs font-medium px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-sm"
                   >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Login del Sitio</span>
+                    <Lock className="w-3 h-3" />
+                    <span>Login</span>
                   </Link>
                 )}
               </>
@@ -110,59 +110,71 @@ export const ProjectSiteView: React.FC = () => {
       </header>
 
       {/* Dynamic Blocks Renderer */}
-      <main className="flex-1 max-w-6xl mx-auto px-6 py-12 w-full space-y-16">
+      <main className="flex-1 max-w-5xl mx-auto px-6 py-16 w-full space-y-20">
         {Array.isArray(project.blocks) && project.blocks.length > 0 ? (
           project.blocks.map((block) => (
-            <section key={block.id} className="relative">
-              {/* HERO BLOCK */}
+            <div key={block.id} className="relative">
+              {/* APPLE HERO BLOCK */}
               {block.type === 'HERO' && (
-                <div className="text-center py-16 px-4 bg-gradient-to-b from-indigo-950/20 to-transparent border border-slate-800/60 rounded-3xl relative overflow-hidden">
-                  <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-                  <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight max-w-2xl mx-auto">
+                <div className="text-center py-20 px-6 rounded-3xl relative overflow-hidden">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-b from-blue-600/15 via-indigo-600/5 to-transparent rounded-full blur-[140px] pointer-events-none" />
+                  
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs text-[#86868b] mb-6 backdrop-blur-md">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Experiencia Modular</span>
+                  </div>
+
+                  <h1 className="text-4xl sm:text-6xl font-semibold text-white tracking-tight max-w-3xl mx-auto leading-tight">
                     {block.content.title || project.title}
                   </h1>
-                  <p className="text-base sm:text-lg text-slate-400 max-w-xl mx-auto mt-4">
+
+                  <p className="text-lg sm:text-xl text-[#86868b] max-w-xl mx-auto mt-5 font-normal leading-relaxed">
                     {block.content.subtitle || project.description}
                   </p>
+
                   {block.content.ctaText && (
-                    <button className="mt-8 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 inline-flex items-center gap-2 transition-all cursor-pointer">
-                      <span>{block.content.ctaText}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                    <div className="mt-8 flex justify-center">
+                      <button className="apple-button-primary font-medium px-6 py-3 rounded-full inline-flex items-center gap-2 cursor-pointer shadow-lg text-sm">
+                        <span>{block.content.ctaText}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
 
-              {/* FEATURES BLOCK */}
+              {/* APPLE FEATURES BLOCK (BENTO GRID) */}
               {block.type === 'FEATURES' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {Array.isArray(block.content.items) &&
                     block.content.items.map((item: any, idx: number) => (
                       <div
                         key={idx}
-                        className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between"
+                        className="apple-card rounded-3xl p-8 flex flex-col justify-between transition-all duration-300"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-indigo-950/80 text-indigo-400 flex items-center justify-center mb-4">
-                          <CheckCircle2 className="w-5 h-5" />
+                        <div>
+                          <div className="w-10 h-10 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-blue-400 mb-5">
+                            <Sparkles className="w-5 h-5" />
+                          </div>
+                          <h3 className="font-semibold text-lg text-white mb-2">{item.title}</h3>
+                          <p className="text-sm text-[#86868b] leading-relaxed font-normal">{item.desc}</p>
                         </div>
-                        <h3 className="font-semibold text-lg text-white mb-2">{item.title}</h3>
-                        <p className="text-sm text-slate-400">{item.desc}</p>
                       </div>
                     ))}
                 </div>
               )}
-            </section>
+            </div>
           ))
         ) : (
-          <div className="text-center py-20 text-slate-500">
+          <div className="text-center py-20 text-[#86868b]">
             Este sitio aún no tiene bloques configurados.
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-600">
-        PuvloBuilder • Tenant: /sitio/{project.slug}
+      <footer className="border-t border-white/[0.06] py-8 text-center text-xs text-[#86868b]">
+        PuvloBuilder Platform • Tenant: <span className="text-zinc-400">/sitio/{project.slug}</span>
       </footer>
     </div>
   );
