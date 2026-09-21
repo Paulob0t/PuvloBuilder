@@ -23,6 +23,7 @@ model SuperAdmin {
 model Project {
   id          String   @id @default(cuid())
   slug        String   @unique
+  routePrefix String   @default("sitio") // Configurable prefix: e.g. "sitio", "app", "tienda", "evento"
   title       String
   description String?  @db.Text
   published   Boolean  @default(false)
