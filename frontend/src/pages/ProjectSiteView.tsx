@@ -14,6 +14,7 @@ interface Block {
 interface ProjectData {
   id: string;
   slug: string;
+  routePrefix?: string;
   title: string;
   description?: string;
   published: boolean;
@@ -23,7 +24,8 @@ interface ProjectData {
 }
 
 export const ProjectSiteView: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { prefix, slug } = useParams<{ prefix?: string; slug?: string }>();
+  const effectiveSlug = slug || prefix; // Supports both /:prefix/:slug and /sitio/:slug
   const { projectUser, logoutProjectUser } = useAuth();
 
   const [project, setProject] = useState<ProjectData | null>(null);
@@ -32,8 +34,9 @@ export const ProjectSiteView: React.FC = () => {
 
   useEffect(() => {
     const loadSite = async () => {
+      if (!effectiveSlug) return;
       try {
-        const res = await api.get(`/projects/public/${slug}`);
+        const res = await api.get(`/projects/public/${effectiveSlug}`);
         setProject(res.data.project);
       } catch (err: any) {
         setError(err.response?.data?.message || 'No se pudo cargar la página');
@@ -43,7 +46,7 @@ export const ProjectSiteView: React.FC = () => {
     };
 
     loadSite();
-  }, [slug]);
+  }, [effectiveSlug]);
 
   if (loading) {
     return (
@@ -68,6 +71,8 @@ export const ProjectSiteView: React.FC = () => {
     );
   }
 
+  const activePrefix = project.routePrefix || prefix || 'sitio';
+
   return (
     <div className="min-h-screen bg-black text-[#f5f5f7] flex flex-col selection:bg-blue-500/30">
       {/* Site Frosted Navbar */}
@@ -83,7 +88,7 @@ export const ProjectSiteView: React.FC = () => {
           <div className="flex items-center gap-3">
             {project.authEnabled && (
               <>
-                {projectUser && projectUser.projectSlug === slug ? (
+                {projectUser && projectUser.projectSlug === project.slug ? (
                   <div className="flex items-center gap-2.5 bg-white/[0.06] border border-white/10 rounded-full px-3.5 py-1.5 text-xs">
                     <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
                     <span className="text-zinc-300 font-medium">{projectUser.name}</span>
@@ -96,7 +101,7 @@ export const ProjectSiteView: React.FC = () => {
                   </div>
                 ) : (
                   <Link
-                    to={`/sitio/${slug}/login`}
+                    to={`/${activePrefix}/${project.slug}/login`}
                     className="apple-button-primary text-xs font-medium px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-sm"
                   >
                     <Lock className="w-3 h-3" />
@@ -174,7 +179,7 @@ export const ProjectSiteView: React.FC = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-8 text-center text-xs text-[#86868b]">
-        PuvloBuilder Platform • Tenant: <span className="text-zinc-400">/sitio/{project.slug}</span>
+        PuvloBuilder Platform • Tenant: <span className="text-zinc-400">/{activePrefix}/{project.slug}</span>
       </footer>
     </div>
   );
