@@ -1,0 +1,72 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. SuperAdmin (Master Level Auth)
+model SuperAdmin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("super_admins")
+}
+
+// 2. Project / Sub-site (Tenant)
+model Project {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  published   Boolean  @default(false)
+  blocks      Json     // Array of dynamic layout blocks [{ id, type, content, styles }]
+  settings    Json?    // Theme config, SEO, branding
+  authEnabled Boolean  @default(false) // If tenant has independent sub-admin / user login
+
+  users       ProjectUser[]
+  submissions ProjectSubmission[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projects")
+}
+
+// 3. ProjectUser (Tenant Level Auth / Sub-admin & end-users)
+model ProjectUser {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email     String
+  password  String
+  name      String
+  role      String   @default("admin") // "admin" (sub-admin of project), "user", etc.
+  metadata  Json?    // Custom user profile attributes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, email])
+  @@index([projectId])
+  @@map("project_users")
+}
+
+// 4. Submissions (Dynamic form responses for project blocks)
+model ProjectSubmission {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  formId    String?
+  data      Json
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@map("project_submissions")
+}
