@@ -104,6 +104,7 @@ export async function registerProjectUserHandler(request: FastifyRequest, reply:
     project: {
       id: project.id,
       slug: project.slug,
+      routePrefix: project.routePrefix,
       title: project.title,
     },
   });
@@ -188,6 +189,7 @@ export async function loginProjectUserHandler(request: FastifyRequest, reply: Fa
     project: {
       id: project.id,
       slug: project.slug,
+      routePrefix: project.routePrefix,
       title: project.title,
     },
   });
@@ -205,6 +207,7 @@ export async function getProjectUserMeHandler(request: FastifyRequest, reply: Fa
         select: {
           id: true,
           slug: true,
+          routePrefix: true,
           title: true,
           authEnabled: true,
           published: true,
