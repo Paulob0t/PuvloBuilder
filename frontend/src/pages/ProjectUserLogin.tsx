@@ -5,11 +5,13 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
 export const ProjectUserLogin: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { prefix, slug } = useParams<{ prefix?: string; slug?: string }>();
+  const effectiveSlug = slug || prefix;
   const navigate = useNavigate();
   const { loginProjectUser } = useAuth();
 
   const [projectTitle, setProjectTitle] = useState<string>('');
+  const [projectPrefix, setProjectPrefix] = useState<string>(prefix || 'sitio');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,36 +22,39 @@ export const ProjectUserLogin: React.FC = () => {
 
   useEffect(() => {
     const fetchProjectInfo = async () => {
-      if (!slug) return;
+      if (!effectiveSlug) return;
       try {
-        const res = await api.get(`/projects/public/${slug}`);
+        const res = await api.get(`/projects/public/${effectiveSlug}`);
         setProjectTitle(res.data.project.title);
+        if (res.data.project.routePrefix) {
+          setProjectPrefix(res.data.project.routePrefix);
+        }
       } catch {
-        setError(`El proyecto '${slug}' no fue encontrado.`);
+        setError(`El proyecto '${effectiveSlug}' no fue encontrado.`);
       } finally {
         setCheckingProject(false);
       }
     };
 
     fetchProjectInfo();
-  }, [slug]);
+  }, [effectiveSlug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!slug) return;
+    if (!effectiveSlug) return;
     setError(null);
     setLoading(true);
 
     try {
       const endpoint = isRegisterMode
-        ? `/projects/${slug}/auth/register`
-        : `/projects/${slug}/auth/login`;
+        ? `/projects/${effectiveSlug}/auth/register`
+        : `/projects/${effectiveSlug}/auth/login`;
 
       const payload = isRegisterMode ? { email, password, name, role: 'admin' } : { email, password };
 
       const res = await api.post(endpoint, payload);
       loginProjectUser(res.data.token, res.data.user);
-      navigate(`/sitio/${slug}`);
+      navigate(`/${projectPrefix}/${effectiveSlug}`);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error de autenticación.';
       setError(msg);
@@ -78,14 +83,14 @@ export const ProjectUserLogin: React.FC = () => {
             <Layers className="w-6 h-6 text-emerald-400" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
-            {projectTitle || slug}
+            {projectTitle || effectiveSlug}
           </h1>
           <p className="text-[13px] text-[#86868b] mt-1 font-normal">
             {isRegisterMode ? 'Crea tu usuario para este sitio' : 'Accede al panel del sitio'}
           </p>
           <div className="mt-2.5">
             <span className="text-[11px] bg-white/[0.05] text-[#86868b] px-3 py-1 rounded-full border border-white/[0.08] font-mono">
-              /sitio/{slug}
+              /{projectPrefix}/{effectiveSlug}
             </span>
           </div>
         </div>
@@ -203,7 +208,7 @@ export const ProjectUserLogin: React.FC = () => {
 
           <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
             <Link
-              to={`/sitio/${slug}`}
+              to={`/${projectPrefix}/${effectiveSlug}`}
               className="text-xs text-[#86868b] hover:text-white inline-flex items-center gap-1.5 transition-colors"
             >
               <span>Ver sitio público</span>
