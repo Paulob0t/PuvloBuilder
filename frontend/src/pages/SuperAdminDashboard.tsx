@@ -13,6 +13,7 @@ import {
   ChevronRight,
   X,
   FolderTree,
+  Edit3,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,10 @@ interface Project {
   published: boolean;
   authEnabled: boolean;
   blocks: any[];
+  settings?: {
+    coverImage?: string;
+    [key: string]: any;
+  };
   _count: {
     users: number;
     submissions: number;
@@ -260,12 +265,24 @@ export const SuperAdminDashboard: React.FC = () => {
               return (
                 <div
                   key={proj.id}
-                  className="apple-card rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between group"
+                  className="apple-card rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between group overflow-hidden"
                 >
                   <div>
+                    {/* Cover image preview if present */}
+                    {proj.settings?.coverImage && (
+                      <div className="w-full h-32 -mt-6 -mx-6 mb-4 overflow-hidden relative border-b border-white/10 group-hover:opacity-95 transition-all" style={{ width: 'calc(100% + 3rem)' }}>
+                        <img
+                          src={proj.settings.coverImage}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      </div>
+                    )}
+
                     {/* Card Top */}
                     <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white">
+                      <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white backdrop-blur-md">
                         <Layers className="w-5 h-5 text-zinc-300" />
                       </div>
 
@@ -322,11 +339,19 @@ export const SuperAdminDashboard: React.FC = () => {
                   {/* Bottom Action Buttons */}
                   <div className="pt-4 border-t border-white/[0.06] flex items-center gap-2">
                     <Link
+                      to={`/admin/proyectos/${proj.id}/editor`}
+                      className="flex-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs py-2 px-3 rounded-full text-center font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border border-blue-500/30"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      <span>Editar</span>
+                    </Link>
+
+                    <Link
                       to={projectPath}
                       target="_blank"
-                      className="flex-1 bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs py-2 px-3 rounded-full text-center font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border border-white/10"
+                      className="bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs py-2 px-3 rounded-full text-center font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border border-white/10"
+                      title="Abrir vista pública del sitio"
                     >
-                      <span>Ver Sitio</span>
                       <ExternalLink className="w-3 h-3 text-zinc-400" />
                     </Link>
 
@@ -334,11 +359,10 @@ export const SuperAdminDashboard: React.FC = () => {
                       <Link
                         to={loginPath}
                         target="_blank"
-                        className="bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 text-xs py-2 px-3.5 rounded-full font-medium flex items-center gap-1.5 transition-all duration-200"
+                        className="bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 text-xs py-2 px-3 rounded-full font-medium flex items-center gap-1.5 transition-all duration-200"
                         title="Login de Sub-Admin del sitio"
                       >
                         <Lock className="w-3 h-3" />
-                        <span>Tenant</span>
                       </Link>
                     )}
                   </div>

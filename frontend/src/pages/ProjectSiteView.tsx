@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Layers, ArrowRight, Lock, UserCheck, Sparkles } from 'lucide-react';
+import { Layers, ArrowRight, Lock, UserCheck, Sparkles, ExternalLink } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+
+interface ImageSlot {
+  id: string;
+  imageUrl: string;
+  title?: string;
+  subtitle?: string;
+  link?: string;
+}
 
 interface Block {
   id: string;
@@ -79,9 +87,17 @@ export const ProjectSiteView: React.FC = () => {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-black/60 backdrop-blur-2xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-b from-zinc-700 to-zinc-900 border border-white/15 flex items-center justify-center font-semibold text-white text-xs">
-              {project.title.charAt(0)}
-            </div>
+            {project.settings?.coverImage ? (
+              <img
+                src={project.settings.coverImage}
+                alt={project.title}
+                className="w-7 h-7 rounded-lg object-cover border border-white/15 shadow-sm"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-b from-zinc-700 to-zinc-900 border border-white/15 flex items-center justify-center font-semibold text-white text-xs">
+                {project.title.charAt(0)}
+              </div>
+            )}
             <span className="font-semibold text-[15px] tracking-tight text-white">{project.title}</span>
           </div>
 
@@ -115,11 +131,11 @@ export const ProjectSiteView: React.FC = () => {
       </header>
 
       {/* Dynamic Blocks Renderer */}
-      <main className="flex-1 max-w-5xl mx-auto px-6 py-16 w-full space-y-20">
+      <main className="flex-1 max-w-5xl mx-auto px-6 py-16 w-full space-y-24">
         {Array.isArray(project.blocks) && project.blocks.length > 0 ? (
           project.blocks.map((block) => (
             <div key={block.id} className="relative">
-              {/* APPLE HERO BLOCK */}
+              {/* 1. APPLE HERO BLOCK */}
               {block.type === 'HERO' && (
                 <div className="text-center py-20 px-6 rounded-3xl relative overflow-hidden">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-b from-blue-600/15 via-indigo-600/5 to-transparent rounded-full blur-[140px] pointer-events-none" />
@@ -148,7 +164,118 @@ export const ProjectSiteView: React.FC = () => {
                 </div>
               )}
 
-              {/* APPLE FEATURES BLOCK (BENTO GRID) */}
+              {/* 2. IMAGE POSITIONS CONTAINER (IMAGE_GRID) */}
+              {block.type === 'IMAGE_GRID' && Array.isArray(block.content.slots) && (
+                <div>
+                  {/* BENTO ASYMMETRIC LAYOUT */}
+                  {block.content.layout === 'bento' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {block.content.slots.map((slot: ImageSlot, idx: number) => {
+                        const isMain = idx === 0;
+                        return (
+                          <div
+                            key={slot.id || idx}
+                            className={`apple-card rounded-3xl overflow-hidden relative group/card flex flex-col justify-end min-h-[300px] ${
+                              isMain ? 'md:col-span-2 md:row-span-2 md:min-h-[460px]' : 'md:min-h-[220px]'
+                            }`}
+                          >
+                            <img
+                              src={slot.imageUrl}
+                              alt={slot.title || 'Gallery image'}
+                              className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+
+                            <div className="relative p-6 z-10">
+                              {slot.title && (
+                                <h3 className={`font-semibold text-white tracking-tight ${isMain ? 'text-2xl' : 'text-lg'}`}>
+                                  {slot.title}
+                                </h3>
+                              )}
+                              {slot.subtitle && (
+                                <p className="text-xs sm:text-sm text-zinc-300 mt-1 font-normal">
+                                  {slot.subtitle}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* 2 COLUMNS LAYOUT */}
+                  {block.content.layout === 'grid-2' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {block.content.slots.map((slot: ImageSlot, idx: number) => (
+                        <div
+                          key={slot.id || idx}
+                          className="apple-card rounded-3xl overflow-hidden relative group/card min-h-[340px] flex flex-col justify-end"
+                        >
+                          <img
+                            src={slot.imageUrl}
+                            alt={slot.title || 'Image'}
+                            className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                          <div className="relative p-6 z-10">
+                            {slot.title && <h3 className="font-semibold text-xl text-white">{slot.title}</h3>}
+                            {slot.subtitle && <p className="text-xs sm:text-sm text-zinc-300 mt-1">{slot.subtitle}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 3 COLUMNS LAYOUT */}
+                  {block.content.layout === 'grid-3' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                      {block.content.slots.map((slot: ImageSlot, idx: number) => (
+                        <div
+                          key={slot.id || idx}
+                          className="apple-card rounded-3xl overflow-hidden relative group/card min-h-[280px] flex flex-col justify-end"
+                        >
+                          <img
+                            src={slot.imageUrl}
+                            alt={slot.title || 'Image'}
+                            className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                          <div className="relative p-6 z-10">
+                            {slot.title && <h3 className="font-semibold text-lg text-white">{slot.title}</h3>}
+                            {slot.subtitle && <p className="text-xs text-zinc-300 mt-1">{slot.subtitle}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* PANORAMIC BANNER LAYOUT */}
+                  {block.content.layout === 'banner' && (
+                    <div className="space-y-6">
+                      {block.content.slots.map((slot: ImageSlot, idx: number) => (
+                        <div
+                          key={slot.id || idx}
+                          className="apple-card rounded-3xl overflow-hidden relative group/card min-h-[320px] flex flex-col justify-end"
+                        >
+                          <img
+                            src={slot.imageUrl}
+                            alt={slot.title || 'Banner'}
+                            className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                          <div className="relative p-8 z-10 max-w-xl">
+                            {slot.title && <h3 className="font-semibold text-2xl sm:text-3xl text-white">{slot.title}</h3>}
+                            {slot.subtitle && <p className="text-sm text-zinc-300 mt-2">{slot.subtitle}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 3. APPLE FEATURES BLOCK (BENTO GRID) */}
               {block.type === 'FEATURES' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {Array.isArray(block.content.items) &&
@@ -166,6 +293,25 @@ export const ProjectSiteView: React.FC = () => {
                         </div>
                       </div>
                     ))}
+                </div>
+              )}
+
+              {/* 4. CTA BANNER BLOCK */}
+              {block.type === 'CTA' && (
+                <div className="apple-glass rounded-3xl p-10 text-center relative overflow-hidden">
+                  <h3 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
+                    {block.content.title || '¿Listo para dar el siguiente paso?'}
+                  </h3>
+                  {block.content.subtitle && (
+                    <p className="text-sm text-[#86868b] max-w-md mx-auto mt-2">
+                      {block.content.subtitle}
+                    </p>
+                  )}
+                  {block.content.buttonText && (
+                    <button className="apple-button-primary mt-6 px-6 py-2.5 rounded-full text-xs font-medium cursor-pointer shadow-lg">
+                      {block.content.buttonText}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
