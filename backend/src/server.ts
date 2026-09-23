@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
+import fastifyMultipart from '@fastify/multipart';
 import fs from 'fs/promises';
 import { env } from './config/env.js';
 import { superAdminAuthRoutes } from './modules/superadmin-auth/superadmin-auth.routes.js';
@@ -31,6 +32,12 @@ async function main() {
   await fastify.register(cors, {
     origin: true,
     credentials: true,
+  });
+
+  await fastify.register(fastifyMultipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB max
+    },
   });
 
   // Serve tenant uploads and assets publicly

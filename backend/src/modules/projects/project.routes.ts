@@ -6,6 +6,7 @@ import {
   updateProjectHandler,
   deleteProjectHandler,
   getPublicProjectBySlugHandler,
+  uploadProjectFileHandler,
 } from './project.controller.js';
 import { authenticateSuperAdmin } from '../../middlewares/auth.js';
 
@@ -19,4 +20,5 @@ export async function projectRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', { preHandler: [authenticateSuperAdmin] }, getProjectByIdHandler);
   fastify.put('/:id', { preHandler: [authenticateSuperAdmin] }, updateProjectHandler);
   fastify.delete('/:id', { preHandler: [authenticateSuperAdmin] }, deleteProjectHandler);
+  fastify.post('/:id/upload', { preHandler: [authenticateSuperAdmin] }, uploadProjectFileHandler);
 }

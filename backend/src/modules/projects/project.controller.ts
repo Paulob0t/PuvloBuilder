@@ -1,10 +1,13 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import fs from 'fs/promises';
+import path from 'path';
 import { prisma } from '../../lib/prisma.js';
 import {
   createTenantWorkspace,
   updateTenantWorkspace,
   deleteTenantWorkspace,
+  getTenantWorkspacePath,
 } from '../../services/tenant-storage.service.js';
 
 // Block definition schema
@@ -234,4 +237,49 @@ export async function getPublicProjectBySlugHandler(request: FastifyRequest, rep
   }
 
   return reply.send({ project });
+}
+
+// 7. Upload project image/file to tenant uploads/ directory
+export async function uploadProjectFileHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+
+  const project = await prisma.project.findUnique({
+    where: { id },
+  });
+
+  if (!project) {
+    return reply.status(404).send({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'Proyecto no encontrado',
+    });
+  }
+
+  const data = await request.file();
+  if (!data) {
+    return reply.status(400).send({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'No se envió ningún archivo para subir',
+    });
+  }
+
+  const tenantDir = getTenantWorkspacePath(project.routePrefix, project.slug);
+  const uploadsDir = path.join(tenantDir, 'uploads');
+  await fs.mkdir(uploadsDir, { recursive: true });
+
+  const ext = path.extname(data.filename) || '.png';
+  const cleanFilename = `${Date.now()}-${data.filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+  const filePath = path.join(uploadsDir, cleanFilename);
+
+  const buffer = await data.toBuffer();
+  await fs.writeFile(filePath, buffer);
+
+  const publicUrl = `/storage/tenants/${project.routePrefix}/${project.slug}/uploads/${cleanFilename}`;
+
+  return reply.send({
+    message: 'Imagen subida exitosamente',
+    url: publicUrl,
+    filename: cleanFilename,
+  });
 }
