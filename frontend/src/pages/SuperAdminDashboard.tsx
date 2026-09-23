@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { confirmDeleteAlert, showSuccessToast, showErrorAlert } from '../utils/alerts';
 
 interface Project {
   id: string;
@@ -141,6 +142,7 @@ export const SuperAdminDashboard: React.FC = () => {
       setNewDescription('');
       setSelectedPrefixPreset('sitio');
       setCustomPrefix('');
+      showSuccessToast('Proyecto Creado', `El sitio "/${prefixToUse}/${newSlug}" está listo.`);
       fetchProjects();
     } catch (err: any) {
       setFormError(err.response?.data?.message || 'Error al crear el proyecto');
@@ -150,12 +152,14 @@ export const SuperAdminDashboard: React.FC = () => {
   };
 
   const handleDeleteProject = async (id: string, title: string) => {
-    if (!confirm(`¿Eliminar el proyecto "${title}"?`)) return;
+    const confirmed = await confirmDeleteAlert(title);
+    if (!confirmed) return;
     try {
       await api.delete(`/projects/${id}`);
+      showSuccessToast('Proyecto Eliminado', `"${title}" ha sido eliminado.`);
       fetchProjects();
     } catch {
-      alert('Error al eliminar el proyecto.');
+      showErrorAlert('Error al eliminar', 'No se pudo eliminar el proyecto. Intenta nuevamente.');
     }
   };
 
