@@ -1,6 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
+import {
+  createTenantWorkspace,
+  updateTenantWorkspace,
+  deleteTenantWorkspace,
+} from '../../services/tenant-storage.service.js';
 
 // Block definition schema
 const blockSchema = z.object({
@@ -86,6 +91,9 @@ export async function createProjectHandler(request: FastifyRequest, reply: Fasti
     },
   });
 
+  // Create isolated physical directory for tenant
+  await createTenantWorkspace(project.routePrefix, project.slug, project);
+
   return reply.status(201).send({
     message: 'Proyecto creado exitosamente',
     project,
@@ -159,6 +167,9 @@ export async function updateProjectHandler(request: FastifyRequest, reply: Fasti
     },
   });
 
+  // Sync physical config.json in tenant folder
+  await updateTenantWorkspace(updatedProject.routePrefix, updatedProject.slug, updatedProject);
+
   return reply.send({
     message: 'Proyecto actualizado correctamente',
     project: updatedProject,
@@ -185,8 +196,11 @@ export async function deleteProjectHandler(request: FastifyRequest, reply: Fasti
     where: { id },
   });
 
+  // Clean up physical folder from disk
+  await deleteTenantWorkspace(existingProject.routePrefix, existingProject.slug);
+
   return reply.send({
-    message: 'Proyecto eliminado exitosamente',
+    message: 'Proyecto y su workspace físico eliminados exitosamente',
   });
 }
 
