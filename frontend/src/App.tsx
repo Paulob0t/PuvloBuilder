@@ -6,6 +6,8 @@ import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 import { ProjectUserLogin } from './pages/ProjectUserLogin';
 import { ProjectSiteView } from './pages/ProjectSiteView';
 
+import { ProjectEditor } from './pages/ProjectEditor';
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -14,6 +16,7 @@ export const App: React.FC = () => {
           {/* Master SuperAdmin Routes */}
           <Route path="/login" element={<SuperAdminLogin />} />
           <Route path="/admin" element={<SuperAdminDashboard />} />
+          <Route path="/admin/proyectos/:id/editor" element={<ProjectEditor />} />
 
           {/* Dynamic Prefix & Slug Tenant Routes (e.g. /app/:slug, /tienda/:slug, /sitio/:slug) */}
           <Route path="/:prefix/:slug/login" element={<ProjectUserLogin />} />
