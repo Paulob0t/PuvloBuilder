@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 *.log
+storage/tenants/*
+!storage/tenants/.gitkeep
