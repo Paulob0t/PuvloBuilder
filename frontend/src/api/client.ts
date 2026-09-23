@@ -8,6 +8,10 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   const superAdminToken = localStorage.getItem('superadmin_token');
   const projectUserToken = localStorage.getItem('project_user_token');
 
